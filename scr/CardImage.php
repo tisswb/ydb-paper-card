@@ -8,9 +8,8 @@
 
 namespace ydb\card;
 
+//todo
 use common\base\OssHelper;
-use common\models\instance\CardEditArea;
-use common\models\instance\CardPage;
 use common\service\OssFileService;
 use ydb\card\components\CodeInfo;
 use ydb\card\components\StructInfo;
@@ -25,13 +24,11 @@ use ydb\card\components\WarningInfo;
 use Imagick;
 use yii\base\BaseObject;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Json;
 
 /**
  * Class CardImage
- * @package common\card
- *
- * @property string $columnLine
- * @property array $cardConfig
+ * @package ydb\card
  */
 class CardImage extends BaseObject
 {
@@ -42,9 +39,10 @@ class CardImage extends BaseObject
     public $examNumBoxWidth;
     public $examNumCount;
 
+    public $card;
     public $cardPageId;
-    /** @var CardPage $pageModel */
-    public $pageModel;
+    public $cardPage;
+    public $cardConfig;
     public $columns;
     public $gutter;
 
@@ -87,11 +85,9 @@ class CardImage extends BaseObject
     public function init()
     {
         parent::init();
-        if (!($this->pageModel instanceOf CardPage)) {
-            \Yii::error('need set pageModel params');
-        }
 
-        $this->pageNum = $this->pageModel->order;
+        $this->pageNum = $this->cardPage['order'];
+        $this->cardConfig = Json::decode($this->card['settings']);
 
         if ($this->columns == CardService::COLUMN_ONE) {
             $this->initColumnOne();
@@ -105,7 +101,7 @@ class CardImage extends BaseObject
         }
 
         $this->examNumCount = ArrayHelper::getValue(
-            $this->pageModel->getPaper()->getCardConfig(),
+            $this->cardConfig,
             'examNumberLength',
             9);
         $this->examNumBoxWidth = $this->examNumCount > 9 ? 74 : 92;
@@ -136,6 +132,7 @@ class CardImage extends BaseObject
 
         $this->file = $this->fileGray = '';
         $this->filePath = \Yii::getAlias("@runtime/");
+        //todo
         $this->fileName = OssFileService::getPaperCardImageFilename(
             $this->pageModel->getPaper()->exam_id,
             $this->pageModel->getPaper()->course_id,
@@ -267,14 +264,12 @@ class CardImage extends BaseObject
                 \Yii::error('create image error');
                 return false;
             }
+        } elseif ($this->im->writeImage($this->file)) {
+            return $this->file;
         } else {
-            if ($this->im->writeImage($this->file)) {
-                return $this->file;
-            } else {
-                $this->file = '';
-                \Yii::error('create image error');
-                return false;
-            }
+            $this->file = '';
+            \Yii::error('create image error');
+            return false;
         }
     }
 
@@ -321,19 +316,18 @@ class CardImage extends BaseObject
             $items['codeInfo'] = $codeInfo;
         }
 
-        $cardConfig = $this->pageModel->getPaper()->getCardConfig();
         $attributes = [
             'sheetIndex' => ceil($this->pageNum / 2),
             'pageIndex' => $this->pageNum,
             'faceAB' => ($this->pageNum % 2 == 1) ? 'A' : 'B',
-            'courseCode' => $this->pageModel->getPaper()->course_id,
-            'colorImageUrl' => $this->pageModel->image_url,
-            'grayImageUrl' => $this->pageModel->image_gray_url,
-            'paperType' => $cardConfig['pageType'] ?? CardService::CARD_TYPE_A4,
+            'courseCode' => $this->card['course_id'],
+            'colorImageUrl' => $this->cardPage['image_url'],
+            'grayImageUrl' => $this->cardPage->image_gray_url,
+            'paperType' => $this->cardConfig['pageType'] ?? CardService::CARD_TYPE_A4,
             'outDpi' => 150,
             'imgDpi' => 300,
-            'columns' => $cardConfig['pageColumn'],
-            'columnLine' => $this->getColumnLine(),
+            'columns' => $this->cardConfig['pageColumn'],
+            'columnLine' => $this->columnLine(),
             'width' => $this->width,
             'height' => $this->height,
             'hasHeader' => 0,
@@ -474,25 +468,19 @@ class CardImage extends BaseObject
     }
 
     /**
-     * @return array
-     */
-    public function getCardConfig()
-    {
-        return $this->pageModel->getPaper()->getCardConfig();
-    }
-
-    /**
      * @param $areaId
      * @param $showScore
      * @return string
      */
     public function capture($areaId, $showScore)
     {
+        //todo
         $areaUrl = urlencode(DOMAIN_EXAM . '/card/area?areaId=' . $areaId
             . '&examId=' . $this->pageModel->getPaper()->exam_id
             . '&showScore=' . $showScore
             . '&color=' . $this->color
             . '&time=' . time());
+        //todo
         $area = CardEditArea::findOne($areaId);
         $width = (string)($area->getWidth() * 2);
         $height = (string)($area->getHeight() * 2);
@@ -511,7 +499,7 @@ class CardImage extends BaseObject
     /**
      * @return string
      */
-    public function getColumnLine()
+    public function columnLine()
     {
         $res = [];
         for ($idx = 1; $idx <= $this->columns; $idx++) {

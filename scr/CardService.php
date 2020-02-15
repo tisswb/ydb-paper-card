@@ -24,41 +24,41 @@ use yii\helpers\ArrayHelper;
  */
 class CardService extends BaseObject
 {
-    const OMR_USED_OBJECT = 'object'; // 客观
-    const OMR_USED_NUMBER = 'examNumber'; // 考号
-    const OMR_USED_MISS_TEST = 'missTest'; // 缺考
-    const OMR_USED_VIOLATION = 'violation'; // 违纪
+    public const OMR_USED_OBJECT = 'object'; // 客观
+    public const OMR_USED_NUMBER = 'examNumber'; // 考号
+    public const OMR_USED_MISS_TEST = 'missTest'; // 缺考
+    public const OMR_USED_VIOLATION = 'violation'; // 违纪
 
-    const COLUMN_ONE = 1;
-    const COLUMN_TWO = 2;
-    const COLUMN_THREE = 3;
+    public const COLUMN_ONE = 1;
+    public const COLUMN_TWO = 2;
+    public const COLUMN_THREE = 3;
 
-    const CARD_TYPE_A3 = 'A3';
-    const CARD_TYPE_A4 = 'A4';
-    const CARD_TYPE_B4 = 'B4';
-    const CARD_TYPE_8K = '8K';
+    public const CARD_TYPE_A3 = 'A3';
+    public const CARD_TYPE_A4 = 'A4';
+    public const CARD_TYPE_B4 = 'B4';
+    public const CARD_TYPE_8K = '8K';
 
-    const CARD_A3_WIDTH = 4961; // 420mm
-    const CARD_A3_HEIGHT = 3508; // 297mm
+    public const CARD_A3_WIDTH = 4961; // 420mm
+    public const CARD_A3_HEIGHT = 3508; // 297mm
 
-    const CARD_A4_WIDTH = 2480; // 210mm
-    const CARD_A4_HEIGHT = 3508; // 297mm
+    public const CARD_A4_WIDTH = 2480; // 210mm
+    public const CARD_A4_HEIGHT = 3508; // 297mm
 
-    const CARD_B4_WIDTH = 3248; // 275mm
-    const CARD_B4_HEIGHT = 2150; // 182mm
-    const CARD_B4_OFFSET = 104;
+    public const CARD_B4_WIDTH = 3248; // 275mm
+    public const CARD_B4_HEIGHT = 2150; // 182mm
+    public const CARD_B4_OFFSET = 104;
 
-    const CARD_8K_WIDTH = 4606; // 390mm
-    const CARD_8K_HEIGHT = 3189; // 270mm
-    const CARD_8K_OFFSET = 48;
+    public const CARD_8K_WIDTH = 4606; // 390mm
+    public const CARD_8K_HEIGHT = 3189; // 270mm
+    public const CARD_8K_OFFSET = 48;
 
-    const ZUOWEN_BIG_LONG_LINE_COUNT = 20;
-    const ZUOWEN_BIG_SHORT_LINE_COUNT = 13;
+    public const ZUOWEN_BIG_LONG_LINE_COUNT = 20;
+    public const ZUOWEN_BIG_SHORT_LINE_COUNT = 13;
 
-    const ZUOWEN_LONG_LINE_COUNT = 23;
-    const ZUOWEN_SHORT_LINE_COUNT = 15;
+    public const ZUOWEN_LONG_LINE_COUNT = 23;
+    public const ZUOWEN_SHORT_LINE_COUNT = 15;
 
-    const GUTTER_OFFSET = 90;
+    public const GUTTER_OFFSET = 90;
 
     /**
      * @param int $paperId
