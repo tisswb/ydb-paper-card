@@ -9,10 +9,10 @@
 namespace ydb\card\components;
 
 use ydb\card\CardImage;
-use common\models\instance\CardPage;
 use Imagick;
 use ImagickDraw;
 use yii\base\BaseObject;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -450,10 +450,15 @@ class Header extends BaseObject
         if ($card->pageNum % 2 == 1) {
             $cardConfig = $card->cardConfig;
             if (!empty($cardConfig)) {
+                $pageCount = (new Query())
+                    ->select('*')
+                    ->from($card->component->tablePage)
+                    ->andWhere(['card_di' => $card->card['id']])
+                    ->count($card->component->db);
                 return [
                     'hasHeader' => true,
                     'title' => $cardConfig['title'] . "\n" . $cardConfig['shortTitle'],
-                    'pageCount' => CardPage::pageCount($card->pageModel->getPageCount()),
+                    'pageCount' => $pageCount,
                     'paperType' => $cardConfig['pageType'],
                     'examNoType' => $cardConfig['examNoType'],
                     'examNumberLength' => ArrayHelper::getValue($cardConfig, 'examNumberLength', 9),

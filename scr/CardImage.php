@@ -28,10 +28,10 @@ use yii\helpers\Json;
 use yii\helpers\Url;
 
 /**
- * Class CardImage
+ * Class CardImage 每一个page生成题卡图片
  * @package ydb\card
  *
- * init params: cardComponent,card,cardPage,columns,gutter
+ * init params: component,card,cardPage,columns,gutter
  */
 class CardImage extends BaseObject
 {
@@ -43,8 +43,8 @@ class CardImage extends BaseObject
     public $examNumCount;
 
     // init params
-    /** @var PaperCard $cardComponent */
-    public $cardComponent;
+    /** @var PaperCard $component */
+    public $component;
     public $card;
     public $cardPage;
     public $columns;
@@ -480,7 +480,7 @@ class CardImage extends BaseObject
         $areaUrl = urlencode(
             Url::to(
                 [
-                    $this->cardComponent->createControllerId() . '/area',
+                    $this->component->createControllerId() . '/area',
                     'areaId' => $areaId,
                     'cardId' => $this->card['id'],
                     'showScore' => $showScore,
@@ -492,13 +492,13 @@ class CardImage extends BaseObject
         );
         $area = (new Query())
             ->select('*')
-            ->from($this->cardComponent->tableEditArea)
+            ->from($this->component->tableEditArea)
             ->andWhere(['id' => $areaId])
-            ->one($this->cardComponent->db);
+            ->one($this->component->db);
         $width = (string)(((int)($area['rb_pos_x'] - $area['lt_pos_x'])) * 2);
         $height = (string)(((int)($area['rb_pos_y'] - $area['lt_pos_y'])) * 2);
         \Yii::error("area {$area['id']} url: {$width}|{$height}|" . urldecode($areaUrl));
-        $url = $this->cardComponent->captureHost
+        $url = $this->component->captureHost
             . "/card/screenshot?url={$areaUrl}&width={$width}&height={$height}";
         $content = CardOssHelper::downloadFile($url);
         if ($content === false) {

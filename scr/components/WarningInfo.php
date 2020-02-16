@@ -9,8 +9,8 @@
 namespace ydb\card\components;
 
 use ydb\card\CardImage;
-use common\models\base\CourseStage;
-use common\models\instance\ExamPaper;
+// use common\models\base\CourseStage;
+// use common\models\instance\ExamPaper;
 use Imagick;
 use ImagickDraw;
 use yii\base\BaseObject;

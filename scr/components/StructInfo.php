@@ -23,6 +23,7 @@ class StructInfo extends BaseObject
      */
     public static function createArray(&$card)
     {
+        //todo
         $res = $scoreBoxInfo = [];
         $structs = $card->pageModel->getSubjectStructs();
         foreach ($structs as $struct) {

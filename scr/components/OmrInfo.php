@@ -10,12 +10,13 @@ namespace ydb\card\components;
 
 use ydb\card\CardImage;
 use ydb\card\CardService;
-use common\models\instance\CardContainer;
-use common\models\instance\CardEditArea;
 use Imagick;
 use ImagickDraw;
+use ydb\card\helper\EditAreaHelper;
 use yii\base\BaseObject;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Json;
 
 /**
  * Class OmrInfo
@@ -101,7 +102,7 @@ class OmrInfo extends BaseObject
     public static function createArray(&$card, $enableUseLength = false, $isDraw = true)
     {
         $omr = $res = [];
-        $paperCardSetting = $card->getCardConfig();
+        $paperCardSetting = $card->cardConfig;
         $omr = ArrayHelper::merge($omr, static::getObjectOmrInfo($card, $isDraw));
         if ($paperCardSetting !== null && $paperCardSetting['examNoType'] == 'fill') {
             $omr = ArrayHelper::merge($omr, static::getExamNumberOmrInfo($card, $enableUseLength));
@@ -124,44 +125,59 @@ class OmrInfo extends BaseObject
     public static function getObjectOmrInfo(&$card, $isDraw)
     {
         $res = [];
-        /** @var CardEditArea[] $structAreas */
-        $structAreas = ArrayHelper::index($card->pageModel->getEditArea(), 'struct_id');
-        $structs = $card->pageModel->getOmrStructs();
+        $containerIds = (new Query())
+            ->select(['id'])
+            ->from($card->component->tableContainer)
+            ->andWhere(['card_page_id' => $card->cardPage['id']])
+            ->column($card->component->db);
+        /** @var EditAreaHelper[] $structAreas */
+        $structAreas = ArrayHelper::index((new Query())
+            ->select('*')
+            ->from($card->component->tableEditArea)
+            ->andWhere(['card_container_id' => $containerIds])
+            ->all($card->component->db), 'struct_id');
+        $structs = (new Query())
+            ->select('*')
+            ->from($card->component->tableCardStruct)
+            ->andWhere(['id' => array_keys($structAreas)])
+            ->andWhere(['type' => ['multi', 'single']])
+            ->orderBy(['parent_id' => SORT_ASC, 'id' => SORT_ASC])
+            ->all($card->component->db);
         if (!empty($structs)) {
             foreach ($structs as $key => $struct) {
-                $bigFont = CardContainer::cardObjOptionsSize(
-                    $struct->exam_paper_id,
-                    $structAreas[$struct->id]->card_container_id
+                $bigFont = static::cardObjOptionsSize(
+                    $card,
+                    $structAreas[$struct['id']]['card_container_id']
                 );
                 $res[] = [
                     'attributes' => [
                         'used' => CardService::OMR_USED_OBJECT,
                         'fontSize' => $bigFont == 0 ? 28 : 36,
-                        'name' => $struct->fullTitle(),
-                        'selectType' => $struct->type,
-                        'pointCount' => $struct->options_num,
+                        'name' => static::getStructFullTitle($card, $struct),
+                        'selectType' => $struct['type'],
+                        'pointCount' => $struct['options_num'],
                         'sequence' => $key + 1,
                         'answer' => '',
-                        'struct_id' => $struct->id,
+                        'struct_id' => $struct['id'],
                         'fullScore' => '',
                         'partScore' => '',
                         'errorScore' => '',
-                        'content' => $struct->title,
-                        'x1' => 2 * $structAreas[$struct->id]->realLtX(),
-                        'y1' => 2 * $structAreas[$struct->id]->realLtY(),
-                        'x2' => 2 * $structAreas[$struct->id]->realRbX(),
-                        'y2' => 2 * $structAreas[$struct->id]->realRbY(),
-                        'x' => 2 * (int)$structAreas[$struct->id]->realLtX() +
+                        'content' => $struct['title'],
+                        'x1' => 2 * $structAreas[$struct['id']]->realLtX(),
+                        'y1' => 2 * $structAreas[$struct['id']]->realLtY(),
+                        'x2' => 2 * $structAreas[$struct['id']]->realRbX(),
+                        'y2' => 2 * $structAreas[$struct['id']]->realRbY(),
+                        'x' => 2 * (int)$structAreas[$struct['id']]->realLtX() +
                             $card->selectionContentWidth,
-                        'y' => 2 * $structAreas[$struct->id]->realRbY(),
+                        'y' => 2 * $structAreas[$struct['id']]->realRbY(),
                     ],
                     'items' => static::selectionPoints(
-                        $struct->options_num,
-                        $struct->options_value,
-                        $structAreas[$struct->id]->realLtX(),
-                        $structAreas[$struct->id]->realLtY(),
-                        $structAreas[$struct->id]->realRbX(),
-                        $structAreas[$struct->id]->realRbY(),
+                        $struct['options_num'],
+                        $struct['options_value'],
+                        $structAreas[$struct['id']]->realLtX(),
+                        $structAreas[$struct['id']]->realLtY(),
+                        $structAreas[$struct['id']]->realRbX(),
+                        $structAreas[$struct['id']]->realRbY(),
                         $card->selectionContentWidth,
                         $card->pointWidth,
                         $bigFont == 0 ? 28 : 36,
@@ -295,7 +311,7 @@ class OmrInfo extends BaseObject
         }
         $offset = 0;
         $yOffset = 0;
-        $config = $card->getCardConfig();
+        $config = $card->cardConfig;
         if ($card->columns == CardService::COLUMN_THREE) {
             if ($config['examNoType'] == 'paste') {
                 $miss = [
@@ -310,34 +326,32 @@ class OmrInfo extends BaseObject
                     'x2' => 575 + $card->left + $card->pointWidth - 2,
                     'y2' => 1133 + $card->pointHeight - 2,
                 ];
+            } elseif ($config['examNumberLength'] > 9) {
+                $miss = [
+                    'x1' => 329 + $card->left,
+                    'y1' => 1095,
+                    'x2' => 329 + $card->left + $card->pointWidth - 2,
+                    'y2' => 1095 + $card->pointHeight - 2,
+                ];
+                $violation = [
+                    'x1' => 329 + $card->left,
+                    'y1' => 1141,
+                    'x2' => 329 + $card->left + $card->pointWidth - 2,
+                    'y2' => 1141 + $card->pointHeight - 2,
+                ];
             } else {
-                if ($config['examNumberLength'] > 9) {
-                    $miss = [
-                        'x1' => 329 + $card->left,
-                        'y1' => 1095,
-                        'x2' => 329 + $card->left + $card->pointWidth - 2,
-                        'y2' => 1095 + $card->pointHeight - 2,
-                    ];
-                    $violation = [
-                        'x1' => 329 + $card->left,
-                        'y1' => 1141,
-                        'x2' => 329 + $card->left + $card->pointWidth - 2,
-                        'y2' => 1141 + $card->pointHeight - 2,
-                    ];
-                } else {
-                    $miss = [
-                        'x1' => 309 + $card->left,
-                        'y1' => 1136,
-                        'x2' => 309 + $card->left + $card->pointWidth - 2,
-                        'y2' => 1136 + $card->pointHeight - 2,
-                    ];
-                    $violation = [
-                        'x1' => 495 + $card->left,
-                        'y1' => 1136,
-                        'x2' => 495 + $card->left + $card->pointWidth - 2,
-                        'y2' => 1136 + $card->pointHeight - 2,
-                    ];
-                }
+                $miss = [
+                    'x1' => 309 + $card->left,
+                    'y1' => 1136,
+                    'x2' => 309 + $card->left + $card->pointWidth - 2,
+                    'y2' => 1136 + $card->pointHeight - 2,
+                ];
+                $violation = [
+                    'x1' => 495 + $card->left,
+                    'y1' => 1136,
+                    'x2' => 495 + $card->left + $card->pointWidth - 2,
+                    'y2' => 1136 + $card->pointHeight - 2,
+                ];
             }
         } else {
             if ($config['showQrcode'] == ACTIVE_YES) {
@@ -551,5 +565,43 @@ class OmrInfo extends BaseObject
             ];
         }
         return $res;
+    }
+
+    /**
+     * @param CardImage $card
+     * @param $containerId
+     * @return string
+     */
+    private static function cardObjOptionsSize(&$card, $containerId)
+    {
+        $defaultSize = '0';
+        if($card->cardConfig['card']['page_setting']['objSubTogether']){
+            $model = (new Query())
+                ->select('*')
+                ->from($card->component->tableContainer)
+                ->andWhere(['id' => $containerId])
+                ->one($card->component->db);
+            $info = Json::decode($model['info']);
+            return $info['config']['use_obj_size'] ?? $defaultSize;
+        }
+        return $card->cardConfig['card']['page_setting']['useObjSize'] ?? $defaultSize;
+    }
+
+    /**
+     * @param CardImage $card
+     * @param $struct
+     * @return string
+     */
+    private static function getStructFullTitle(&$card, $struct)
+    {
+        $parentTitle = '';
+        if ($struct['parent_id']) {
+            $parentTitle = (new Query())
+                ->select('title')
+                ->from($card->component->tableCardStruct)
+                ->andWhere(['id' => $struct['parent_id']])
+                ->scalar($card->component->db);
+        }
+        return $parentTitle . '-' . $struct['title'];
     }
 }

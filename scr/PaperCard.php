@@ -61,6 +61,16 @@ class PaperCard extends Component implements BootstrapInterface
     public $tableCardStruct = '{{%card_struct}}';
 
     /**
+     * @var string card score box
+     */
+    public $tableScoreBox = '{{%card_score_box}}';
+
+    /**
+     * @var string card score box struct
+     */
+    public $tableScoreBoxStruct = '{{%card_score_box_struct}}';
+
+    /**
      * @inheritdoc
      */
     public function init()

@@ -9,7 +9,7 @@
 namespace ydb\card\components;
 
 use ydb\card\CardImage;
-use common\models\instance\CardContainer;
+// use common\models\instance\CardContainer;
 use yii\base\BaseObject;
 use yii\helpers\ArrayHelper;
 
