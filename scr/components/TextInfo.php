@@ -25,7 +25,7 @@ class TextInfo extends BaseObject
      */
     public static function draw(&$card)
     {
-        $cardConfig = $card->getCardConfig();
+        $cardConfig = $card->cardConfig;
         $textInfo = static::createArray($card);
         $areas = ArrayHelper::getValue($textInfo, ['items.area']);
         if (empty($areas)) {

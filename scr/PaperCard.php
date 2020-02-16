@@ -28,6 +28,8 @@ class PaperCard extends Component implements BootstrapInterface
      */
     public $db;
 
+    public $captureHost;
+
     /**
      * @var string card table name
      */
@@ -74,7 +76,7 @@ class PaperCard extends Component implements BootstrapInterface
     {
         $app->controllerMap[$this->createControllerId()] = [
             'class' => PaperController::class,
-            'paperCard' => $this
+            'cardComponent' => $this
         ];
     }
 
@@ -82,7 +84,7 @@ class PaperCard extends Component implements BootstrapInterface
      * @return string Controller id
      * @throws
      */
-    protected function createControllerId()
+    public function createControllerId()
     {
         foreach (Yii::$app->getComponents(false) as $id => $component) {
             if ($component === $this) {

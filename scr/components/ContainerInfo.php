@@ -28,7 +28,7 @@ class ContainerInfo extends BaseObject
      */
     public static function draw(&$card)
     {
-        $config = $card->pageModel->getPaper()->getCardConfig();
+        $config = $card->cardConfig;
         $containers = $card->pageModel->getContainer();
         $draw = new ImagickDraw();
         if (!empty($containers)) {

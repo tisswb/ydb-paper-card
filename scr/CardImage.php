@@ -8,9 +8,6 @@
 
 namespace ydb\card;
 
-//todo
-use common\base\OssHelper;
-use common\service\OssFileService;
 use ydb\card\components\CodeInfo;
 use ydb\card\components\StructInfo;
 use ydb\card\components\ContainerInfo;
@@ -21,14 +18,20 @@ use ydb\card\components\OmrInfo;
 use ydb\card\components\SecretTag;
 use ydb\card\components\TextInfo;
 use ydb\card\components\WarningInfo;
+use ydb\card\helper\CardOssFileHelper;
+use ydb\card\helper\CardOssHelper;
 use Imagick;
 use yii\base\BaseObject;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
+use yii\helpers\Url;
 
 /**
  * Class CardImage
  * @package ydb\card
+ *
+ * init params: cardComponent,card,cardPage,columns,gutter
  */
 class CardImage extends BaseObject
 {
@@ -39,13 +42,15 @@ class CardImage extends BaseObject
     public $examNumBoxWidth;
     public $examNumCount;
 
+    // init params
+    /** @var PaperCard $cardComponent */
+    public $cardComponent;
     public $card;
-    public $cardPageId;
     public $cardPage;
-    public $cardConfig;
     public $columns;
     public $gutter;
 
+    public $cardConfig;
     public $format;
     public $color;
     public $resizeTo;
@@ -70,8 +75,6 @@ class CardImage extends BaseObject
     public $colorRed;
     public $colorTransparent;
     public $colorForbid;
-    // /** @var RemoteWebDriver $driver */
-    // public $driver;
 
     public $file;
     public $fileGray;
@@ -132,19 +135,18 @@ class CardImage extends BaseObject
 
         $this->file = $this->fileGray = '';
         $this->filePath = \Yii::getAlias("@runtime/");
-        //todo
-        $this->fileName = OssFileService::getPaperCardImageFilename(
-            $this->pageModel->getPaper()->exam_id,
-            $this->pageModel->getPaper()->course_id,
+        $this->fileName = CardOssFileHelper::getCardImageFilename(
+            $this->card['id'],
+            $this->card['course_id'],
             $this->resizeTo,
-            $this->pageModel->order,
+            $this->cardPage['order'],
             $this->format
         );
-        $this->fileGrayName = OssFileService::getPaperCardGrayImageFilename(
-            $this->pageModel->getPaper()->exam_id,
-            $this->pageModel->getPaper()->course_id,
+        $this->fileGrayName = CardOssFileHelper::getCardGrayImageFilename(
+            $this->card['id'],
+            $this->card['course_id'],
             $this->resizeTo,
-            $this->pageModel->order,
+            $this->cardPage['order'],
             'jpg'
         );
     }
@@ -471,23 +473,34 @@ class CardImage extends BaseObject
      * @param $areaId
      * @param $showScore
      * @return string
+     * @throws \yii\base\InvalidConfigException
      */
     public function capture($areaId, $showScore)
     {
-        //todo
-        $areaUrl = urlencode(DOMAIN_EXAM . '/card/area?areaId=' . $areaId
-            . '&examId=' . $this->pageModel->getPaper()->exam_id
-            . '&showScore=' . $showScore
-            . '&color=' . $this->color
-            . '&time=' . time());
-        //todo
-        $area = CardEditArea::findOne($areaId);
-        $width = (string)($area->getWidth() * 2);
-        $height = (string)($area->getHeight() * 2);
-        \Yii::error("area {$areaId} url: {$width}|{$height}|" . urldecode($areaUrl));
-        $url = CARD_CAPTURE_HOST . "/card/screenshot?url={$areaUrl}&width={$width}&height={$height}";
-        $content = OssHelper::downloadFile($url);
-        // OssHelper::writeFile($this->filePath . '/logs/' . $areaId . '.png', base64_decode($content));
+        $areaUrl = urlencode(
+            Url::to(
+                [
+                    $this->cardComponent->createControllerId() . '/area',
+                    'areaId' => $areaId,
+                    'cardId' => $this->card['id'],
+                    'showScore' => $showScore,
+                    'color' => $this->color,
+                    'time' => time()
+                ],
+                true
+            )
+        );
+        $area = (new Query())
+            ->select('*')
+            ->from($this->cardComponent->tableEditArea)
+            ->andWhere(['id' => $areaId])
+            ->one($this->cardComponent->db);
+        $width = (string)(((int)($area['rb_pos_x'] - $area['lt_pos_x'])) * 2);
+        $height = (string)(((int)($area['rb_pos_y'] - $area['lt_pos_y'])) * 2);
+        \Yii::error("area {$area['id']} url: {$width}|{$height}|" . urldecode($areaUrl));
+        $url = $this->cardComponent->captureHost
+            . "/card/screenshot?url={$areaUrl}&width={$width}&height={$height}";
+        $content = CardOssHelper::downloadFile($url);
         if ($content === false) {
             \Yii::error('area capture error');
             return '';

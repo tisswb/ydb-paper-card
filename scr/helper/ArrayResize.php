@@ -8,7 +8,7 @@
 
 namespace ydb\card\helper;
 
-use common\card\CardService;
+use ydb\card\CardService;
 use yii\base\BaseObject;
 use yii\helpers\ArrayHelper;
 
@@ -69,10 +69,8 @@ class ArrayResize extends BaseObject
                         );
                     }
                 }
-            } else {
-                if (is_array($item)) {
-                    static::transformArray($array[$key], $from, $to);
-                }
+            } elseif (is_array($item)) {
+                static::transformArray($array[$key], $from, $to);
             }
         }
     }

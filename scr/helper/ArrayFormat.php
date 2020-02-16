@@ -69,20 +69,17 @@ class ArrayFormat extends BaseObject
                     "items.pages.items.page.{$index}.items.textInfo.items.area",
                     $areas
                 );
-            } else {
-                if (is_array($pageAreas)) {
-                    $areas = [];
-                    foreach ($pageAreas as $pageArea) {
-                        [$area, $outId] = static::computeBlock($pageArea, $outId, $columnLine, $paperType);
-                        $areas = ArrayHelper::merge($areas, $area);
-                    }
-                    ArrayHelper::setValue(
-                        $array,
-                        "items.pages.items.page.{$index}.items.textInfo.items.area",
-                        $areas
-                    );
+            } elseif (is_array($pageAreas)) {
+                $areas = [];
+                foreach ($pageAreas as $pageArea) {
+                    [$area, $outId] = static::computeBlock($pageArea, $outId, $columnLine, $paperType);
+                    $areas = ArrayHelper::merge($areas, $area);
                 }
-
+                ArrayHelper::setValue(
+                    $array,
+                    "items.pages.items.page.{$index}.items.textInfo.items.area",
+                    $areas
+                );
             }
         }
     }

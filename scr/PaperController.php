@@ -36,17 +36,17 @@ class PaperController extends Controller
     /**
      * @var PaperCard $paperCard
      */
-    public $paperCard;
+    public $cardComponent;
 
     public function init()
     {
         parent::init();
-        $this->db = $this->paperCard->db;
-        $this->tableCard = $this->paperCard->tableCard;
-        $this->tablePage = $this->paperCard->tablePage;
-        $this->tableContainer = $this->paperCard->tableContainer;
-        $this->tableArea = $this->paperCard->tableEditArea;
-        $this->tableStruct = $this->paperCard->tableCardStruct;
+        $this->db = $this->cardComponent->db;
+        $this->tableCard = $this->cardComponent->tableCard;
+        $this->tablePage = $this->cardComponent->tablePage;
+        $this->tableContainer = $this->cardComponent->tableContainer;
+        $this->tableArea = $this->cardComponent->tableEditArea;
+        $this->tableStruct = $this->cardComponent->tableCardStruct;
     }
 
     /**
@@ -79,8 +79,11 @@ class PaperController extends Controller
      */
     public function actionXml($cardId)
     {
+        $card = $this->getCard($cardId);
+        $cardPages = [];
+        $courseName = '测试';
         header('Content-type: text/xml');
-        return CardService::markingXml($cardId);
+        return CardService::markingXml($card, $cardPages, $courseName);
     }
 
     /**

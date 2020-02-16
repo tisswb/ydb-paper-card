@@ -10,13 +10,10 @@ namespace ydb\card;
 
 use ydb\card\helper\ArrayFormat;
 use ydb\card\helper\ArrayResize;
-use common\models\base\CourseStage;
-use common\models\exam\Exam;
-use common\models\instance\CardPage;
-use common\models\instance\ExamPaper;
 use SimpleXMLElement;
 use yii\base\BaseObject;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Json;
 
 /**
  * Class CardService
@@ -60,33 +57,40 @@ class CardService extends BaseObject
 
     public const GUTTER_OFFSET = 90;
 
+    public $courseId;
+    public $courseName;
+
     /**
-     * @param int $paperId
+     * @param $card
+     * @param $cardPages
+     * @param $courseName
      * @param string $to
      * @return string
      * @throws \Exception
      */
-    public static function markingXml($paperId, $to = '')
+    public static function markingXml($card, $cardPages, $courseName, $to = '')
     {
-        $card = simplexml_load_string(static::baseTemplate());
-        $array = static::prepareArray($paperId);
+        $cardXml = simplexml_load_string(static::baseTemplate());
+        $array = static::prepareArray($card, $cardPages, $courseName);
         if (in_array($to, [static::CARD_TYPE_8K, static::CARD_TYPE_B4])) {
             ArrayResize::transformPageAttr($array, $to);
             ArrayResize::transformArray($array, 'A3', $to);
         }
         static::arrayToXML($card, $array);
-        return $card->asXML();
+        return $cardXml->asXML();
     }
 
     /**
-     * @param $paperId
+     * @param $card
+     * @param $cardPages
+     * @param $courseName
      * @return array
      */
-    public static function prepareArray($paperId)
+    private static function prepareArray($card, $cardPages, $courseName)
     {
-        $array = static::paperArray($paperId, false);
+        $array = static::paperArray($card, $cardPages, $courseName, false);
         ArrayFormat::mergeArea($array);
-        if (static::isYouhen($paperId)) {
+        if ($card['review_type'] == 1) {
             ArrayFormat::relatedOcr($array);
         } else {
             ArrayFormat::relatedStruct($array);
@@ -95,37 +99,48 @@ class CardService extends BaseObject
     }
 
     /**
-     * @param $paperId
+     * @param $card
+     * @param $cardPages
+     * @param $courseName
      * @param $showContent
      * @return array
      */
-    public static function paperArray($paperId, $showContent)
+    private static function paperArray($card, $cardPages, $courseName, $showContent)
     {
         $pageItems = [];
-        $pageCards = CardPage::find()
-            ->andWhere(['exam_paper_id' => $paperId])
-            ->orderBy('order')
-            ->all();
-        $paperConfig = ExamPaper::cardConfig($paperId);
-        $cardType = $cardWidth = $cardHeight = $courseId = '';
-        $gutter = $paperConfig['showGutterLine'] ?? 0;
-        foreach ($pageCards as $pageCard) {
-            $card = new CardImage([
-                'pageModel' => $pageCard,
-                'columns' => $paperConfig['pageColumn'],
-                'gutter' => $gutter
-            ]);
-            $pageItems[] = $card->pageArray($showContent);
-            $cardType = empty($cardType) ? $paperConfig['pageType'] : $cardType;
-            $cardWidth = empty($cardWidth) ? $card->width : $cardWidth;
-            $cardHeight = empty($cardHeight) ? $card->height : $cardHeight;
-            $courseId = empty($courseId) ? $card->pageModel->getPaper()->course_id : $courseId;
+        $cardType = $cardWidth = $cardHeight = '';
+        $cardConfig = Json::decode($card['settings']);
+        foreach ($cardPages as $cardPage) {
+            $cardImage = new CardImage(
+                [
+                    'card' => $card,
+                    'cardPage' => $cardPage,
+                    'columns' => $cardConfig['pageColumn'],
+                    'gutter' => $cardConfig['showGutterLine'] ?? 0
+                ]
+            );
+            $pageItems[] = $cardImage->pageArray($showContent);
+            $cardType = empty($cardType) ? $cardConfig['pageType'] : $cardType;
+            $cardWidth = empty($cardWidth) ? $cardImage->width : $cardWidth;
+            $cardHeight = empty($cardHeight) ? $cardImage->height : $cardHeight;
         }
-        $count = count($pageCards);
+        $count = count($cardPages);
         if ($count % 2 == 1) {
-            $pageItems[] = static::getBlankPage($count + 1, $cardType, $cardWidth, $cardHeight, $courseId);
+            $pageItems[] = static::getBlankPage(
+                $count + 1,
+                $cardType,
+                $cardWidth,
+                $cardHeight,
+                $card['course_id']
+            );
         }
-        $pageAttributes = static::getPaperAttributes($paperId);
+        $pageAttributes = static::buildPaperAttributes(
+            $card['paper_id'],
+            $card['course_id'],
+            $courseName,
+            $card['review_type'],
+            $count
+        );
         return [
             'attributes' => $pageAttributes,
             'items' => [
@@ -140,35 +155,27 @@ class CardService extends BaseObject
 
     /**
      * @param $paperId
-     * @return array|bool
+     * @param $courseId
+     * @param $courseName
+     * @param $reviewType
+     * @param $pageCount
+     * @return array
      */
-    public static function getPaperAttributes($paperId)
-    {
-        $paper = ExamPaper::findOne($paperId);
-        $exam = Exam::findOne($paper->exam_id);
-        $pageCount = CardPage::pageCount($paperId);
-        $courseName = CourseStage::find()
-                ->select('display_name')
-                ->andWhere(['identifier' => $paper->course_id])
-                ->scalar() ?? '';
+    private static function buildPaperAttributes(
+        $paperId,
+        $courseId,
+        $courseName,
+        $reviewType,
+        $pageCount
+    ) {
         return [
             'paperId' => $paperId,
-            'courseCode' => $paper->course_id,
-            'courseName' => $courseName,
-            'examType' => ($exam->review_type == Exam::REVIEW_YOUHEN) ? 'youhen' : 'wuhen',
+            'courseCode' => $courseId,
+            'courseName' => $courseName ?? '',
+            'examType' => ($reviewType == 1) ? 'youhen' : 'wuhen',
             'pageCount' => $pageCount, //页
             'sheetCount' => ceil($pageCount / 2), //张
         ];
-    }
-
-    /**
-     * @param $paperId
-     * @return bool
-     */
-    public static function isYouhen($paperId)
-    {
-        $paperAttributes = static::getPaperAttributes($paperId);
-        return $paperAttributes['examType'] == 'youhen';
     }
 
     /**
@@ -243,7 +250,7 @@ class CardService extends BaseObject
     /**
      * @return string
      */
-    public static function baseTemplate()
+    private static function baseTemplate()
     {
         return <<<XML
 <?xml version="1.0" encoding="utf-8" ?>

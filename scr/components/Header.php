@@ -448,7 +448,7 @@ class Header extends BaseObject
     public static function createArray(&$card)
     {
         if ($card->pageNum % 2 == 1) {
-            $cardConfig = $card->getCardConfig();
+            $cardConfig = $card->cardConfig;
             if (!empty($cardConfig)) {
                 return [
                     'hasHeader' => true,
