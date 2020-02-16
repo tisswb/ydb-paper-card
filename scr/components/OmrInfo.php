@@ -130,7 +130,6 @@ class OmrInfo extends BaseObject
             ->from($card->component->tableContainer)
             ->andWhere(['card_page_id' => $card->cardPage['id']])
             ->column($card->component->db);
-        /** @var EditAreaHelper[] $structAreas */
         $structAreas = ArrayHelper::index((new Query())
             ->select('*')
             ->from($card->component->tableEditArea)
@@ -149,6 +148,12 @@ class OmrInfo extends BaseObject
                     $card,
                     $structAreas[$struct['id']]['card_container_id']
                 );
+                $area = new EditAreaHelper(
+                    [
+                        'id' => $struct['id'],
+                        'component' => $card->component,
+                    ]
+                );
                 $res[] = [
                     'attributes' => [
                         'used' => CardService::OMR_USED_OBJECT,
@@ -163,21 +168,20 @@ class OmrInfo extends BaseObject
                         'partScore' => '',
                         'errorScore' => '',
                         'content' => $struct['title'],
-                        'x1' => 2 * $structAreas[$struct['id']]->realLtX(),
-                        'y1' => 2 * $structAreas[$struct['id']]->realLtY(),
-                        'x2' => 2 * $structAreas[$struct['id']]->realRbX(),
-                        'y2' => 2 * $structAreas[$struct['id']]->realRbY(),
-                        'x' => 2 * (int)$structAreas[$struct['id']]->realLtX() +
-                            $card->selectionContentWidth,
-                        'y' => 2 * $structAreas[$struct['id']]->realRbY(),
+                        'x1' => 2 * $area->realLtX(),
+                        'y1' => 2 * $area->realLtY(),
+                        'x2' => 2 * $area->realRbX(),
+                        'y2' => 2 * $area->realRbY(),
+                        'x' => 2 * (int)$area->realLtX() + $card->selectionContentWidth,
+                        'y' => 2 * $area->realRbY(),
                     ],
                     'items' => static::selectionPoints(
                         $struct['options_num'],
                         $struct['options_value'],
-                        $structAreas[$struct['id']]->realLtX(),
-                        $structAreas[$struct['id']]->realLtY(),
-                        $structAreas[$struct['id']]->realRbX(),
-                        $structAreas[$struct['id']]->realRbY(),
+                        $area->realLtX(),
+                        $area->realLtY(),
+                        $area->realRbX(),
+                        $area->realRbY(),
                         $card->selectionContentWidth,
                         $card->pointWidth,
                         $bigFont == 0 ? 28 : 36,

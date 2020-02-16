@@ -16,6 +16,9 @@ use yii\db\Query;
 /**
  * Class EditAreaHelper
  * @package ydb\card\helper
+ *
+ * @property string $title
+ * @property mixed $container
  */
 class EditAreaHelper extends BaseObject
 {
@@ -34,19 +37,74 @@ class EditAreaHelper extends BaseObject
             ->one($this->component->db);
     }
 
+    /**
+     * @return array
+     */
+    public function getContainer()
+    {
+        return (new Query())
+            ->select('*')
+            ->from($this->component->tableContainer)
+            ->andWhere(['id' => $this->item['card_container_id']])
+            ->all($this->component->db);
+    }
+
+    /**
+     * @return int
+     */
     public function realLtX()
     {
+        $container = $this->getContainer();
+        return (int)$container['lt_pos_x'] + (int)$this->item['lt_pos_x'];
     }
 
+    /**
+     * @return int
+     */
     public function realLtY()
     {
+        $container = $this->getContainer();
+        return (int)$container['lt_pos_y'] + (int)$this->item['lt_pos_y'];
     }
 
+    /**
+     * @return int
+     */
     public function realRbX()
     {
+        $container = $this->getContainer();
+        return (int)$container['lt_pos_x'] + (int)$this->item['rb_pos_x'];
     }
 
+    /**
+     * @return int
+     */
     public function realRbY()
     {
+        $container = $this->getContainer();
+        return (int)$container['lt_pos_y'] + (int)$this->item['rb_pos_y'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getTitle()
+    {
+        $titleExt = '';
+        $struct = (new Query())
+            ->select('*')
+            ->from($this->component->tableCardStruct)
+            ->andWhere(['id' => $this->item['struct_id']])
+            ->one($this->component->db);
+        $areas = (new Query())
+            ->select('id')
+            ->from($this->component->tableEditArea)
+            ->andWhere(['struct_id' => $this->item['struct_id']])
+            ->column();
+        if (count($areas) > 1) {
+            $key = array_search($this->id, array_unique($areas));
+            $titleExt = ($key === false) ? '' : $key + 1;
+        }
+        return empty($titleExt) ? $struct['title'] : ($struct['title'] . '-' . $titleExt);
     }
 }

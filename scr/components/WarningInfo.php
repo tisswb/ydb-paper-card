@@ -9,11 +9,10 @@
 namespace ydb\card\components;
 
 use ydb\card\CardImage;
-// use common\models\base\CourseStage;
-// use common\models\instance\ExamPaper;
 use Imagick;
 use ImagickDraw;
 use yii\base\BaseObject;
+use yii\db\Query;
 
 /**
  * Class Warning
@@ -28,12 +27,14 @@ class WarningInfo extends BaseObject
     public static function draw(&$card)
     {
         $fontSize = 36;
-        $paperId = $card->pageModel->exam_paper_id;
-        $courseId = ExamPaper::find()->select('course_id')->byId($paperId)->scalar();
-        $courseName = CourseStage::find()->select('display_name')->identifier($courseId)->scalar();
-        $courseName = empty($courseName) ? '' : $courseName;
+        $courseName = $card->courseName;
         $y = $card->height - $card->bottom - $card->helpPointWidth + 16;
-        $count = $card->pageModel->getPageCount() * $card->columns;
+        $pageCount = (new Query())
+            ->select('*')
+            ->from($card->component->tablePage)
+            ->andWhere(['card_id' => $card->card['id']])
+            ->count($card->component->db);
+        $count = $pageCount * $card->columns;
         $draw = new ImagickDraw();
         $draw->setFont($card->textFontContent);
         $draw->setFontSize($fontSize);

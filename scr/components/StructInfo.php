@@ -10,6 +10,7 @@ namespace ydb\card\components;
 
 use ydb\card\CardImage;
 use yii\base\BaseObject;
+use yii\db\Query;
 
 /**
  * Class StructInfo
@@ -23,9 +24,24 @@ class StructInfo extends BaseObject
      */
     public static function createArray(&$card)
     {
-        //todo
         $res = $scoreBoxInfo = [];
-        $structs = $card->pageModel->getSubjectStructs();
+        $containerIds = (new Query())
+            ->select(['id'])
+            ->from($card->component->tableContainer)
+            ->andWhere(['card_page_id' => $card->cardPage['id']])
+            ->column($card->component->db);
+        $structIds = (new Query())
+            ->select('struct_id')
+            ->from($card->component->tableEditArea)
+            ->andWhere(['card_container_id' => $containerIds])
+            ->column($card->component->db);
+        $structs = (new Query())
+            ->select('*')
+            ->from($card->component->tableCardStruct)
+            ->andWhere(['id' => $structIds])
+            ->andWhere(['type' => ['multi', 'single']])
+            ->orderBy(['parent_id' => SORT_ASC, 'id' => SORT_ASC])
+            ->all($card->component->db);
         foreach ($structs as $struct) {
             $scoreBoxInfo[] = [
                 'attributes' => [

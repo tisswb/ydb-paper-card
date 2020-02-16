@@ -31,7 +31,7 @@ use yii\helpers\Url;
  * Class CardImage 每一个page生成题卡图片
  * @package ydb\card
  *
- * init params: component,card,cardPage,columns,gutter
+ * init params: component,card,cardPage,columns,gutter,courseName
  */
 class CardImage extends BaseObject
 {
@@ -49,6 +49,7 @@ class CardImage extends BaseObject
     public $cardPage;
     public $columns;
     public $gutter;
+    public $courseName;
 
     public $cardConfig;
     public $format;
@@ -116,6 +117,7 @@ class CardImage extends BaseObject
         $this->im->setImageUnits(\imagick::RESOLUTION_PIXELSPERINCH);
         $this->im->setImageResolution(300, 300);
 
+        //todo
         $this->imageDir = \Yii::getAlias('@app/data/' . $this->color);
         $this->textFont = \Yii::getAlias('@app/data/simsun.ttc');
         $this->textFontContent = \Yii::getAlias('@app/data/msyh.ttf');
