@@ -9,6 +9,10 @@
 /** @var $lineHeight */
 /** @var $textIndent */
 /** @var $color */
+
+use ydb\card\assets\PapaerCardAsset;
+
+$bundle = PapaerCardAsset::register($this);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -80,7 +84,7 @@
     <div class="box-image">
         <?php /** @var int $lineStart */
         for ($line = $lineStart; $line < $lineCount; $line++): ?>
-            <img class="box" src="<?=Yii::getAlias('@staticUrl')?>/card_img/zuowen_row_<?=$size?>_<?=$count?>_<?=$color?>.svg">
+            <img class="box" src="<?=$bundle->baseUrl?>/images/zuowen_row_<?=$size?>_<?=$count?>_<?=$color?>.svg">
             <?php
             $lineStart = $count * $line - $count + 1;
             $lineEnd = $count * $line;

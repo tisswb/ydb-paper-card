@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="958px" height="608px" viewBox="0 0 958 608" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 47.1 (45422) - http://www.bohemiancoding.com/sketch -->
+    <title>5 copy@1x</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="有痕答题卡" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="8-copy" transform="translate(-1284.000000, -326.000000)">
+            <g id="Group-7" transform="translate(1394.000000, 328.000000)">
+                <g id="Group-5">
+                    <g id="Group-4" transform="translate(0.000000, 134.000000)" fill="#FF0000">
+                        <path d="M737,467 L827,467 L827,19 L737,19 L737,467 Z M829,17 L829,469 L735,469 L735,17 L829,17 Z" id="Rectangle-4-Copy-11" fill-rule="nonzero"></path>
+                        <path d="M645,19 L645,467 L735,467 L735,19 L645,19 Z M737,17 L737,469 L643,469 L643,17 L737,17 Z" id="Rectangle-4-Copy-10" fill-rule="nonzero"></path>
+                        <path d="M553,467 L643,467 L643,19 L553,19 L553,467 Z M645,17 L645,469 L551,469 L551,17 L645,17 Z" id="Rectangle-4-Copy-9" fill-rule="nonzero"></path>
+                        <path d="M461,467 L551,467 L551,19 L461,19 L461,467 Z M553,17 L553,469 L459,469 L459,17 L553,17 Z" id="Rectangle-4-Copy-8" fill-rule="nonzero"></path>
+                        <path d="M369,467 L459,467 L459,19 L369,19 L369,467 Z M461,17 L461,469 L367,469 L367,17 L461,17 Z" id="Rectangle-4-Copy-7" fill-rule="nonzero"></path>
+                        <path d="M277,467 L367,467 L367,19 L277,19 L277,467 Z M369,17 L369,469 L275,469 L275,17 L369,17 Z" id="Rectangle-4-Copy-6" fill-rule="nonzero"></path>
+                        <path d="M185,19 L185,467 L275,467 L275,19 L185,19 Z M277,17 L277,469 L183,469 L183,17 L277,17 Z" id="Rectangle-4-Copy-5" fill-rule="nonzero"></path>
+                        <path d="M93,19 L93,467 L183,467 L183,19 L93,19 Z M185,17 L185,469 L91,469 L91,17 L185,17 Z" id="Rectangle-4-Copy" fill-rule="nonzero"></path>
+                        <path d="M1,19 L1,467 L91,467 L91,19 L1,19 Z M93,17 L93,469 L-1,469 L-1,17 L93,17 Z" id="Rectangle-4" fill-rule="nonzero"></path>
+                        <g id="Group-6" transform="translate(10.000000, 0.000000)" font-weight="normal" font-family="SimSun" letter-spacing="2.20000005" font-size="26.4">
+                            <g id="9" transform="translate(736.000000, 38.000000)">
+                            </g>
+                            <g id="8" transform="translate(0.000000, 38.000000)">
+                            </g>
+                            <g id="7" transform="translate(92.000000, 38.000000)">
+                            </g>
+                            <g id="6" transform="translate(184.000000, 38.000000)">
+                            </g>
+                            <g id="5" transform="translate(276.000000, 38.000000)">
+                            </g>
+                            <g id="4" transform="translate(368.000000, 38.000000)">
+                            </g>
+                            <g id="3" transform="translate(460.000000, 38.000000)">
+                            </g>
+                            <g id="2" transform="translate(552.000000, 38.000000)">
+                            </g>
+                            <g id="1" transform="translate(644.000000, 38.000000)">
+                            </g>
+                        </g>
+                    </g>
+                    <g id="Group-4" transform="translate(0.000000, 68.000000)" fill-rule="nonzero" fill="#FF0000">
+                        <path d="M737,83 L827,83 L827,1 L737,1 L737,83 Z M829,-1 L829,85 L735,85 L735,-1 L829,-1 Z" id="Rectangle-4-Copy-11"></path>
+                        <path d="M645,83 L735,83 L735,1 L645,1 L645,83 Z M737,-1 L737,85 L643,85 L643,-1 L737,-1 Z" id="Rectangle-4-Copy-10"></path>
+                        <path d="M553,83 L643,83 L643,1 L553,1 L553,83 Z M645,-1 L645,85 L551,85 L551,-1 L645,-1 Z" id="Rectangle-4-Copy-9"></path>
+                        <path d="M461,83 L551,83 L551,1 L461,1 L461,83 Z M553,-1 L553,85 L459,85 L459,-1 L553,-1 Z" id="Rectangle-4-Copy-8"></path>
+                        <path d="M369,83 L459,83 L459,1 L369,1 L369,83 Z M461,-1 L461,85 L367,85 L367,-1 L461,-1 Z" id="Rectangle-4-Copy-7"></path>
+                        <path d="M277,83 L367,83 L367,1 L277,1 L277,83 Z M369,-1 L369,85 L275,85 L275,-1 L369,-1 Z" id="Rectangle-4-Copy-6"></path>
+                        <path d="M185,1 L185,83 L275,83 L275,1 L185,1 Z M277,-1 L277,85 L183,85 L183,-1 L277,-1 Z" id="Rectangle-4-Copy-5"></path>
+                        <path d="M93,1 L93,83 L183,83 L183,1 L93,1 Z M185,-1 L185,85 L91,85 L91,-1 L185,-1 Z" id="Rectangle-4-Copy"></path>
+                        <path d="M1,1 L1,83 L91,83 L91,1 L1,1 Z M93,-1 L93,85 L-1,85 L-1,-1 L93,-1 Z" id="Rectangle-4"></path>
+                    </g>
+                    <g id="Group-4">
+                        <path d="M1,1 L1,67 L827,67 L827,1 L1,1 Z M829,-1 L829,69 L-1,69 L-1,-1 L829,-1 Z" id="Rectangle-4" fill="#FF0000" fill-rule="nonzero"></path>
+                        <text id="准考证号" font-family="SimSun" font-size="40" font-weight="normal" fill="#000000">
+                            <tspan x="334" y="46">准考证号</tspan>
+                        </text>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

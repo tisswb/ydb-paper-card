@@ -17,5 +17,5 @@ use yii\web\AssetBundle;
  */
 class PapaerCardAsset extends AssetBundle
 {
-
+    public $sourcePath = '@ydb/card/assets/scr';
 }

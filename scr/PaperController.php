@@ -47,6 +47,8 @@ class PaperController extends Controller
         $this->tableContainer = $this->cardComponent->tableContainer;
         $this->tableArea = $this->cardComponent->tableEditArea;
         $this->tableStruct = $this->cardComponent->tableCardStruct;
+
+        $this->viewPath = '@ydb/card/views/paper';
     }
 
     /**

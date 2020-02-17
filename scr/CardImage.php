@@ -117,11 +117,10 @@ class CardImage extends BaseObject
         $this->im->setImageUnits(\imagick::RESOLUTION_PIXELSPERINCH);
         $this->im->setImageResolution(300, 300);
 
-        //todo
-        $this->imageDir = \Yii::getAlias('@app/data/' . $this->color);
-        $this->textFont = \Yii::getAlias('@app/data/simsun.ttc');
-        $this->textFontContent = \Yii::getAlias('@app/data/msyh.ttf');
-        $this->textFont2 = \Yii::getAlias('@app/data/simfang.ttf');
+        $this->imageDir = \Yii::getAlias('@ydb/card/data/images/' . $this->color);
+        $this->textFont = \Yii::getAlias('@ydb/card/data/simsun.ttc');
+        $this->textFontContent = \Yii::getAlias('@ydb/card/data/msyh.ttf');
+        $this->textFont2 = \Yii::getAlias('@ydb/card/data/simfang.ttf');
 
         if ($this->color == 'black') {
             $this->colorBlack = new \ImagickPixel('black');

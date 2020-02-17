@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "ydb\\card\\": "scr"
+            "ydb\\card\\": "scr",
         }
     }
 }
