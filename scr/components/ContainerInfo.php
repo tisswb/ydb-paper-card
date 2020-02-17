@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by MSchool.
+ * Created by Ydb.
  * User: Tisswb
  * Date: 2018-07-13
  * Time: 9:38
@@ -61,7 +61,6 @@ class ContainerInfo extends BaseObject
                         (int)$container['lt_pos_y'] + (int)$container['rb_pos_y'],
                         '请勿在此区域作答'
                     );
-
                 } else {
                     $draw->setFillColor($card->colorTransparent);
                     $draw->setStrokeWidth(2);
