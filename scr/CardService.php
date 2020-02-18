@@ -61,6 +61,7 @@ class CardService extends BaseObject
     public $courseName;
 
     /**
+     * @param $examPaperId
      * @param $card
      * @param $cardPages
      * @param $courseName
@@ -68,10 +69,10 @@ class CardService extends BaseObject
      * @return string
      * @throws \Exception
      */
-    public static function markingXml($card, $cardPages, $courseName, $to = '')
+    public static function markingXml($examPaperId, $card, $cardPages, $courseName, $to = '')
     {
         $cardXml = simplexml_load_string(static::baseTemplate());
-        $array = static::prepareArray($card, $cardPages, $courseName);
+        $array = static::prepareArray($examPaperId, $card, $cardPages, $courseName);
         if (in_array($to, [static::CARD_TYPE_8K, static::CARD_TYPE_B4])) {
             ArrayResize::transformPageAttr($array, $to);
             ArrayResize::transformArray($array, 'A3', $to);
@@ -81,14 +82,15 @@ class CardService extends BaseObject
     }
 
     /**
+     * @param $examPaperId
      * @param $card
      * @param $cardPages
      * @param $courseName
      * @return array
      */
-    private static function prepareArray($card, $cardPages, $courseName)
+    private static function prepareArray($examPaperId, $card, $cardPages, $courseName)
     {
-        $array = static::paperArray($card, $cardPages, $courseName, false);
+        $array = static::paperArray($examPaperId, $card, $cardPages, $courseName, false);
         ArrayFormat::mergeArea($array);
         if ($card['review_type'] == 1) {
             ArrayFormat::relatedOcr($array);
@@ -99,13 +101,14 @@ class CardService extends BaseObject
     }
 
     /**
+     * @param $examPaperId
      * @param $card
      * @param $cardPages
      * @param $courseName
      * @param $showContent
      * @return array
      */
-    private static function paperArray($card, $cardPages, $courseName, $showContent)
+    private static function paperArray($examPaperId, $card, $cardPages, $courseName, $showContent)
     {
         $pageItems = [];
         $cardType = $cardWidth = $cardHeight = '';
@@ -135,7 +138,7 @@ class CardService extends BaseObject
             );
         }
         $pageAttributes = static::buildPaperAttributes(
-            $card['paper_id'],
+            $examPaperId,
             $card['course_id'],
             $courseName,
             $card['review_type'],

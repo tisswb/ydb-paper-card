@@ -8,12 +8,12 @@
 
 namespace ydb\card\jobs;
 
-use common\base\InstanceDb;
-use common\base\OssHelper;
-use common\card\CardService;
-use common\models\instance\ExamPaper;
-use common\service\OssFileService;
+use ydb\card\CardService;
+use ydb\card\helper\CardOssFileHelper;
+use ydb\card\helper\CardOssHelper;
+use ydb\card\PaperCard;
 use yii\base\BaseObject;
+use yii\db\Query;
 use yii\queue\JobInterface;
 
 /**
@@ -22,8 +22,10 @@ use yii\queue\JobInterface;
  */
 class CardXMLJob extends BaseObject implements JobInterface
 {
-    public $examId;
-    public $paperId;
+    public $examPaperId;
+    /** @var PaperCard $component */
+    public $component;
+    public $cardId;
     public $resizeTo;
 
     /**
@@ -34,12 +36,26 @@ class CardXMLJob extends BaseObject implements JobInterface
      */
     public function execute($queue)
     {
-        InstanceDb::initByExamId($this->examId);
+        // InstanceDb::initByExamId($this->examId);
         $file = '';
-        $paper = ExamPaper::findOne($this->paperId);
-        $target = OssFileService::getPaperCardSpecFilename($this->examId, $paper->course_id, true);
+        $card = (new Query())
+            ->select('*')
+            ->from($this->component->tableCard)
+            ->andWhere(['id' => $this->cardId])
+            ->one($this->component->db);
+        $pages = (new Query())
+            ->select('*')
+            ->from($this->component->tablePage)
+            ->andWhere(['card_id' => $this->cardId])
+            ->all($this->component->db);
+        $target = CardOssFileHelper::getPaperCardSpecFilename(
+            $this->component->uniqueId,
+            $this->cardId,
+            $card['course_id'],
+            true
+        );
         try {
-            $xml = CardService::markingXml($this->paperId, $this->resizeTo);
+            $xml = CardService::markingXml($this->examPaperId, $card, $pages, $this->resizeTo);
             $filePath = \Yii::getAlias("@runtime/");
             $file = $filePath . $target;
             $path = dirname($file);
@@ -51,10 +67,14 @@ class CardXMLJob extends BaseObject implements JobInterface
             \Yii::info('can not create xml', __METHOD__);
         }
         try {
-            $xmlRemote = OssHelper::uploadFile($target, $file);
-            $paper = ExamPaper::findOne($this->paperId);
-            $paper->xml_url = $xmlRemote;
-            if (!$paper->save(false)) {
+            $xmlRemote = CardOssHelper::uploadFile($target, $file);
+            if (
+                !$this->component->db->createCommand()->update(
+                    $this->component->tableCard,
+                    ['xml_url' => $xmlRemote],
+                    ['id' => $this->cardId]
+                )->execute()
+            ) {
                 \Yii::error('xml save into paper error', __METHOD__);
             }
             \Yii::error('create card xml done ' . $this->paperId);

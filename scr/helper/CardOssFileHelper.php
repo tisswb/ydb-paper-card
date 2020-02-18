@@ -18,6 +18,33 @@ use yii\base\BaseObject;
 class CardOssFileHelper extends BaseObject
 {
     /**
+     * 获取试卷答题卡格式XML存储文件名
+     *
+     * @param string $componentId
+     * @param int $examId
+     * @param string $course
+     * @param bool $timeStamp
+     * @return string
+     */
+    public static function getPaperCardSpecFilename(
+        $componentId,
+        $cardId,
+        $courseId,
+        $timeStamp = false
+    ): string {
+        if ($timeStamp === true) {
+            $time = time();
+            $fileName = "/card-spec-{$course}-{$time}.xml";
+        } else {
+            $fileName = "/card-spec-{$course}.xml";
+        }
+        return static::getCardRootPath(
+                $componentId,
+                $cardId
+            ) . $fileName;
+    }
+
+    /**
      * 获取试卷答题卡图片存储文件名
      *
      * @param string $componentId
