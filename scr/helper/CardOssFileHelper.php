@@ -20,59 +20,59 @@ class CardOssFileHelper extends BaseObject
     /**
      * 获取试卷答题卡图片存储文件名
      *
+     * @param string $componentId
      * @param int $cardId
-     * @param string $course
      * @param $type
      * @param int $page
      * @param string $extension
      * @return string
      */
     public static function getCardImageFilename(
+        $componentId,
         $cardId,
-        $course,
         $type,
         $page,
         $extension
     ): string {
         $extension = ltrim($extension, '.');
-        return static::getCardPath(
-                $cardId,
-                $course
+        return static::getCardRootPath(
+                $componentId,
+                $cardId
             ) . "/card-image-{$page}-{$type}.{$extension}";
     }
 
     /**
      * 获取试卷答题卡灰度图片存储文件名
      *
+     * @param string $componentId
      * @param int $cardId
-     * @param string $course
      * @param $type
      * @param int $page
      * @param string $extension
      * @return string
      */
     public static function getCardGrayImageFilename(
+        $componentId,
         $cardId,
-        $course,
         $type,
         $page,
         $extension
     ): string {
         $extension = ltrim($extension, '.');
-        return static::getCardPath(
-                $cardId,
-                $course
+        return static::getCardRootPath(
+                $componentId,
+                $cardId
             ) . "/gray-card-image-{$page}-{$type}.{$extension}";
     }
 
     /**
-     * @param int $examId
-     * @param string $course
+     * 获取考试数据存储根目录
+     * @param $componentId
+     * @param $examId
      * @return string
      */
-    public static function getCardPath(int $examId, string $course)
+    public static function getCardRootPath($componentId, $cardId): string
     {
-        //todo
-        return '';
+        return "card/{$componentId}/{$cardId}";
     }
 }

@@ -137,15 +137,15 @@ class CardImage extends BaseObject
         $this->file = $this->fileGray = '';
         $this->filePath = \Yii::getAlias("@runtime/");
         $this->fileName = CardOssFileHelper::getCardImageFilename(
+            $this->component->uniqueId,
             $this->card['id'],
-            $this->card['course_id'],
             $this->resizeTo,
             $this->cardPage['order'],
             $this->format
         );
         $this->fileGrayName = CardOssFileHelper::getCardGrayImageFilename(
+            $this->component->uniqueId,
             $this->card['id'],
-            $this->card['course_id'],
             $this->resizeTo,
             $this->cardPage['order'],
             'jpg'

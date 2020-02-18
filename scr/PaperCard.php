@@ -24,6 +24,11 @@ use yii\helpers\Inflector;
 class PaperCard extends Component implements BootstrapInterface
 {
     /**
+     * @var string $uniqueId 用来标识应用的区别，每个应用都不能重复
+     */
+    public $uniqueId;
+
+    /**
      * @var string|Connection db
      */
     public $db;
