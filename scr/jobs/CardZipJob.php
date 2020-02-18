@@ -46,7 +46,7 @@ class CardZipJob extends BaseObject implements JobInterface
             ->one($this->component->db);
         $zipFileBaseName = Json::decode($card['settings'])['card']['page_setting']['shortTitle'] ?? '';
 
-        $filePath = \Yii::getAlias("@runtime/") . OssFileService::getCardRootPath(
+        $filePath = \Yii::getAlias("@runtime/") . CardOssFileHelper::getCardRootPath(
                                                             $this->component->uniqueId,
                                                             $this->cardId
                                                         );
@@ -54,7 +54,7 @@ class CardZipJob extends BaseObject implements JobInterface
         $zipName = "{$this->cardId}_{$this->resizeTo}_{$time}.zip";
         $zipFile = $filePath . '/' . $zipName;
         $this->zip($filePath . '/' . $card->course_id, $zipFile, $zipFileBaseName, $this->format);
-        $target = OssFileService::getCardRootPath(
+        $target = CardOssFileHelper::getCardRootPath(
             $this->component->uniqueId,
             $this->cardId
         ) . '/' . $zipName;

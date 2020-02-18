@@ -8,10 +8,6 @@
 
 namespace ydb\card\jobs;
 
-// use common\base\InstanceDb;
-// use common\models\instance\CardPage;
-// use common\models\instance\ExamPaper;
-use PhpOffice\PhpWord\Style\Paper;
 use ydb\card\PaperCard;
 use yii\base\BaseObject;
 use yii\queue\JobInterface;

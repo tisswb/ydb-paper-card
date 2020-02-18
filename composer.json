@@ -11,7 +11,10 @@
         }
     ],
     "require": {
-        "yiisoft/yii2": "~2.0.0"
+        "yiisoft/yii2": "~2.0.0",
+        "yiisoft/yii2-queue": "^2.0",
+        "yiisoft/yii2-redis": "^2.0",
+        "cdcchen/yii2-aliyun":"^2.0"
     },
     "autoload": {
         "psr-4": {
