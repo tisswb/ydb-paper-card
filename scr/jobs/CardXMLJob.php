@@ -36,7 +36,6 @@ class CardXMLJob extends BaseObject implements JobInterface
      */
     public function execute($queue)
     {
-        // InstanceDb::initByExamId($this->examId);
         $file = '';
         $card = (new Query())
             ->select('*')
