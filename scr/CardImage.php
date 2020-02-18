@@ -31,7 +31,7 @@ use yii\helpers\Url;
  * Class CardImage 每一个page生成题卡图片
  * @package ydb\card
  *
- * init params: component,card,cardPage,columns,gutter,courseName
+ * init params: component,card,cardPage,courseName,resizeTo
  */
 class CardImage extends BaseObject
 {
@@ -92,6 +92,8 @@ class CardImage extends BaseObject
 
         $this->pageNum = $this->cardPage['order'];
         $this->cardConfig = Json::decode($this->card['settings']);
+        $this->columns = $this->cardConfig['pageColumn'] ?? 2;
+        $this->gutter = $this->cardConfig['showGutterLine'] ?? 0;
 
         if ($this->columns == CardService::COLUMN_ONE) {
             $this->initColumnOne();
